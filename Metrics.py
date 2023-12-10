@@ -86,8 +86,7 @@ class Metrics():
             raise ValueError(f"Unsupported filter type: {filter_type}")
     
         return kernel
-        
-
+    
 if __name__=="__main__":
     
     print(Metrics.median([134,50,32,626,32,10]))

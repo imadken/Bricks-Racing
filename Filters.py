@@ -116,7 +116,7 @@ class Filters():
                  img_result[y, x] = Convolution.convolution(img_region,kernel)
         
          #crop back to original
-         img_result = img_result[pad_y:pad_y+img_height, pad_x:pad_x+img_width]
+        #  img_result = img_result[pad_y:pad_y+img_height, pad_x:pad_x+img_width]
                  
          return img_result
      
@@ -136,10 +136,13 @@ class Filters():
              method = Convolution.erode
          else:
             method = Convolution.dilate
+         
+         
+         img_binary = Convolution.threshold(img,128,255)
             
          kernel = Convolution.create_structuring_element(kernel_shape,size_kernel)   
          
-         img_height, img_width = img.shape
+         img_height, img_width = img_binary.shape
          kernel_height, kernel_width = kernel.shape
      
          # Ensure the kernel has an odd size
@@ -150,8 +153,8 @@ class Filters():
          pad_x = kernel_width // 2
          
         #  img_result = np.zeros_like(img)
-         img_result = img.copy()
-         img_copy = img.copy()
+         img_result = img_binary.copy()
+         img_copy = img_binary.copy()
          # Iterate over each pixel in the input image
          for _ in range(iterations):
             for y in range(pad_y,img_height - pad_y):
@@ -185,10 +188,12 @@ class Filters():
 
          # Ensure the kernel has an odd size
          assert size_kernel % 2 == 1, "Kernel size must be odd"
-
+        
+         img_binary = Convolution.threshold(img,128,255)
+        
         #  img_result = np.zeros_like(img)
-         img_result = img.copy()
-         img_copy = img.copy()
+         img_result = img_binary.copy()
+         img_copy = img_binary.copy()
          # Iterate over each pixel in the input image
          for _ in range(iterations):
           
@@ -213,20 +218,25 @@ class Filters():
          Returns:
              result img: numpy array of the filtred input image 
          """
+         
+         assert kernel_size >= 3 ,"kernel size for Sobel must be at least 3 "
+         
          Hkernel,Vkernel=Metrics.generate_filter_kernel(filter_type="Sobel",size=kernel_size)
          
          img_copy = img.copy()
-         img_copy=np.array(img_copy,dtype=np.float64)
+         img_copy=np.array(img_copy,dtype=np.float32)
          
          gradient_x = Filters.filter2D(img_copy,Hkernel)
          gradient_y = Filters.filter2D(img_copy,Vkernel)
          
          magnitude = np.sqrt(gradient_x**2 + gradient_y**2)
-
+         
+         magnitude = np.array(magnitude,dtype=img.dtype)
+   
          return magnitude 
    
 if __name__=="__main__":
-    img = cv2.imread("palestine.png", cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread("images/barca.png", cv2.IMREAD_GRAYSCALE)
     
     
     # HSober_kernel = np.array([[-1, 0, 1],[ -2, 0, 2], [-1, 0, 1]])
@@ -250,12 +260,14 @@ if __name__=="__main__":
     # img_laplacien = Filters.filter2D(img,laplacien_kernel)
     # img_emboss = Filters.filter2D(img,emboss_kernel)
     # img_gauss = Filters.filter2D(img,gauss_kernel)
-    img_binary = Convolution.threshold(img,128,255)
-    # img_erode = Filters.filter_Morph(img_binary,iterations=1,type="erosion",kernel_shape="RECT",size_kernel=1)
-    # img_dilate = Filters.filter_Morph(img_binary,iterations=1,type="dilate",kernel_shape="RECT",size_kernel=5)
+    # img_binary = Convolution.threshold(img,128,255)
+    img_erodecross = Filters.filter_Morph(img,iterations=1,type="erosion",kernel_shape="cross",size_kernel=5)
+    img_erode = Filters.filter_Morph(img,iterations=1,type="erosion",kernel_shape="RECT",size_kernel=5)
+    # img_dilatecross = Filters.filter_Morph(img,iterations=1,type="dilate",kernel_shape="cross",size_kernel=5)
+    # img_dilate = Filters.filter_Morph(img,iterations=1,type="dilate",kernel_shape="dilate",size_kernel=5)
     # img_sobel = Filters.Sobel(img,kernel_size=3)
     
-    img_close = Filters.Open_Close_Morph(img,type="close",iterations=1)
+    # img_close = Filters.Open_Close_Morph(img,type="close",iterations=1,size_kernel=5)
 
     # cv2.imshow("before",img)
     
@@ -264,11 +276,13 @@ if __name__=="__main__":
     # cv2.imshow("median",img_res)
     # cv2.imshow("laplacien",img_laplacien)
     # cv2.imshow("gauss",img_gauss)
-    # cv2.imshow("erode",img_erode)
+    cv2.imshow("erode",img_erode)
+    cv2.imshow("erode cross",img_erodecross)
     # cv2.imshow("dilate",img_dilate)
-    cv2.imshow("binary",img_binary)
+    # cv2.imshow("dilate cross",img_dilatecross)
+    # cv2.imshow("binary",img_binary)
     # cv2.imshow("sobel",img_sobel)
-    cv2.imshow("close",img_close)
+    # cv2.imshow("close",img_close)
     # cv2.imshow("emboss",img_emboss)
 
     

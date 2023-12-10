@@ -40,6 +40,7 @@ class Convolution:
        # Create an empty matrix
     
        if shape.lower() == "cross" :
+               print('cross')
                kernel = np.zeros((size, size), dtype=np.uint8)
                kernel[:, size // 2] = 1
                kernel[size // 2, :] = 1
@@ -60,7 +61,8 @@ class Convolution:
              for x in range(w):
                 # if y != w // 2 and x != h // 2:
                 # if y != kernel_height // 2 and x != kernel_width // 2:
-                sum_value = img[y,x] & kernel[y,x] & sum_value
+                if kernel[y,x] == 1:
+                   sum_value = img[y,x] & kernel[y,x] & sum_value
         
         if sum_value == 1 :
             return 255           
@@ -76,7 +78,8 @@ class Convolution:
         for y in range(h):   
              for x in range(w):
                 # if y != kernel_height // 2 and x != kernel_width // 2:
-                sum_value = img[y,x] | kernel[y,x] | sum_value
+                if kernel[y,x] == 1:
+                   sum_value = img[y,x] | kernel[y,x] | sum_value
         if sum_value == 1 :
             return 0          
         return 255
@@ -84,7 +87,7 @@ class Convolution:
 
 if __name__=="__main__":
     # img = cv2.imread("palestine.png", cv2.IMREAD_GRAYSCALE)
-    img = cv2.imread("palestine.png",cv2.IMREAD_COLOR)
+    img = cv2.imread("images/palestine.png",cv2.IMREAD_COLOR)
     if len(img.shape) == 3:
         image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
